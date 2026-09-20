@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}PyAutoBox - Personal Automation Toolbox{% endblock %}
+{% block content %}
+  <section class="hero">
+    <p class="eyebrow">PERSONAL AUTOMATION TOOLBOX</p>
+    <h1>PyAutoBox</h1>
+    <p>Simple tools. Less repetitive work.</p>
+  </section>
+
+  <section class="tool-grid" aria-label="工具列表">
+    <a class="tool-card" href="{{ url_for('pdf_merge_page') }}">
+      <span class="tool-icon">PDF</span>
+      <h2>PDF 合并</h2>
+      <p>按顺序合并多个 PDF，完成后直接下载。</p>
+    </a>
+    <a class="tool-card" href="{{ url_for('excel_merge_page') }}">
+      <span class="tool-icon">XLS</span>
+      <h2>Excel 合并</h2>
+      <p>纵向合并表格，自动对齐所有列。</p>
+    </a>
+    <a class="tool-card" href="{{ url_for('image_compress_page') }}">
+      <span class="tool-icon">IMG</span>
+      <h2>图片压缩</h2>
+      <p>批量压缩图片并可限制最大宽度。</p>
+    </a>
+    <article class="tool-card local-only">
+      <span class="tool-icon">REN</span>
+      <h2>批量重命名</h2>
+      <p>本地文件操作，请使用 <code>autobox rename</code>。</p>
+      <span class="local-badge">CLI 安全模式</span>
+    </article>
+    <a class="tool-card" href="{{ url_for('md2pdf_page') }}">
+      <span class="tool-icon">MD</span>
+      <h2>Markdown 转 PDF</h2>
+      <p>上传或粘贴 Markdown，快速生成 PDF。</p>
+    </a>
+    <article class="tool-card local-only">
+      <span class="tool-icon">DIR</span>
+      <h2>文件整理</h2>
+      <p>为避免访问任意本地目录，请使用 <code>autobox clean-desktop</code>。</p>
+      <span class="local-badge">仅限 CLI</span>
+    </article>
+  </section>
+{% endblock %}

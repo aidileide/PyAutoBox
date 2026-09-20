@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}图片压缩 - PyAutoBox{% endblock %}
+{% block content %}
+  <section class="tool-page">
+    <a class="back-link" href="{{ url_for('home') }}">← 返回全部工具</a>
+    <div class="page-heading">
+      <p class="eyebrow">IMAGE TOOL</p>
+      <h1>图片压缩</h1>
+      <p>保持原格式与透明背景；多张图片会自动打包为 ZIP。</p>
+    </div>
+    <form class="tool-form" data-api-form data-endpoint="/api/image/compress" data-file-field="files">
+      <div class="upload-zone" data-upload-zone tabindex="0">
+        <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple data-file-input>
+        <strong>拖拽图片到这里</strong>
+        <span>支持 JPG、PNG、WEBP · 单个文件最大 {{ max_upload_mb }} MB</span>
+      </div>
+      <div class="file-list" data-file-list></div>
+      <div class="field-grid">
+        <label>
+          图片质量：<output data-quality-output>80</output>
+          <input type="range" name="quality" min="10" max="100" value="80" data-quality-slider>
+        </label>
+        <label>
+          最大宽度（像素）
+          <input type="number" name="max_width" min="1" placeholder="留空则不限制">
+        </label>
+      </div>
+      <button class="primary-button" type="submit">开始压缩</button>
+      <div class="status" data-status aria-live="polite"></div>
+      <div class="compression-stats" data-compression-stats hidden></div>
+      <div class="download-area" data-download></div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Markdown 转 PDF - PyAutoBox{% endblock %}
+{% block content %}
+  <section class="tool-page wide-page">
+    <a class="back-link" href="{{ url_for('home') }}">← 返回全部工具</a>
+    <div class="page-heading">
+      <p class="eyebrow">MARKDOWN TOOL</p>
+      <h1>Markdown 转 PDF</h1>
+      <p>上传 UTF-8 Markdown 文件，或直接粘贴内容。</p>
+    </div>
+    <form class="tool-form" data-api-form data-endpoint="/api/md2pdf" data-file-field="markdown_file" data-single-file="true">
+      <div class="upload-zone compact" data-upload-zone tabindex="0">
+        <input type="file" accept=".md,.markdown,text/markdown" data-file-input>
+        <strong>选择 .md 文件（可选）</strong>
+        <span>上传文件时将优先使用文件内容</span>
+      </div>
+      <div class="file-list" data-file-list></div>
+      <div class="editor-grid">
+        <label class="editor-panel">
+          <span>Markdown</span>
+          <textarea name="markdown_text" rows="18" data-markdown-input placeholder="# 标题&#10;&#10;在这里输入 Markdown..."></textarea>
+        </label>
+        <div class="editor-panel">
+          <span>HTML 预览</span>
+          <div class="markdown-preview" data-markdown-preview>
+            <p class="preview-placeholder">预览会显示在这里。</p>
+          </div>
+        </div>
+      </div>
+      <button class="primary-button" type="submit">生成 PDF</button>
+      <div class="status" data-status aria-live="polite"></div>
+      <div class="download-area" data-download></div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}PDF 合并 - PyAutoBox{% endblock %}
+{% block content %}
+  <section class="tool-page">
+    <a class="back-link" href="{{ url_for('home') }}">← 返回全部工具</a>
+    <div class="page-heading">
+      <p class="eyebrow">PDF TOOL</p>
+      <h1>PDF 合并</h1>
+      <p>拖入多个 PDF，通过按钮调整顺序，再生成一个合并文件。</p>
+    </div>
+    <form class="tool-form" data-api-form data-endpoint="/api/pdf/merge" data-file-field="files" data-orderable="true">
+      <div class="upload-zone" data-upload-zone tabindex="0">
+        <input type="file" accept="application/pdf,.pdf" multiple data-file-input>
+        <strong>拖拽 PDF 到这里</strong>
+        <span>或点击选择文件 · 单个文件最大 {{ max_upload_mb }} MB</span>
+      </div>
+      <div class="file-list" data-file-list></div>
+      <button class="primary-button" type="submit">开始合并</button>
+      <div class="status" data-status aria-live="polite"></div>
+      <div class="download-area" data-download></div>
+    </form>
+  </section>
+{% endblock %}

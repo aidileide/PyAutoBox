@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyautobox"
+version = "0.1.0"
+description = "A lightweight personal automation toolbox with CLI and local Web UI."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "PyAutoBox contributors" },
+]
+keywords = ["automation", "cli", "fastapi", "pdf", "excel", "image"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Framework :: FastAPI",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Utilities",
+]
+dependencies = [
+  "fastapi>=0.115,<1",
+  "jinja2>=3.1,<4",
+  "openpyxl>=3.1,<4",
+  "pandas>=2.2,<4",
+  "pillow>=10,<13",
+  "pypdf>=5,<7",
+  "python-multipart>=0.0.12,<1",
+  "reportlab>=4.2,<5",
+  "typer>=0.15,<1",
+  "uvicorn>=0.34,<1",
+  "xlrd>=2.0.1,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.27,<1",
+  "pytest>=8,<10",
+  "ruff>=0.11,<1",
+]
+
+[project.urls]
+Homepage = "https://github.com/aidileide/PyAutoBox"
+Issues = "https://github.com/aidileide/PyAutoBox/issues"
+
+[project.scripts]
+autobox = "pyautobox.cli:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyautobox"]
+
+[tool.hatch.build]
+include = [
+  "pyautobox/**/*.py",
+  "pyautobox/web/templates/*.html",
+  "pyautobox/web/static/**/*.css",
+  "pyautobox/web/static/**/*.js",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

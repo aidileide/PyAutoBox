@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Excel 合并 - PyAutoBox{% endblock %}
+{% block content %}
+  <section class="tool-page">
+    <a class="back-link" href="{{ url_for('home') }}">← 返回全部工具</a>
+    <div class="page-heading">
+      <p class="eyebrow">EXCEL TOOL</p>
+      <h1>Excel 合并</h1>
+      <p>按行合并首个或指定工作表，自动取所有列的并集。</p>
+    </div>
+    <form class="tool-form" data-api-form data-endpoint="/api/excel/merge" data-file-field="files">
+      <div class="upload-zone" data-upload-zone tabindex="0">
+        <input type="file" accept=".xlsx,.xls" multiple data-file-input>
+        <strong>拖拽 Excel 文件到这里</strong>
+        <span>支持 .xlsx 和 .xls · 单个文件最大 {{ max_upload_mb }} MB</span>
+      </div>
+      <div class="file-list" data-file-list></div>
+      <div class="field-grid">
+        <label>
+          工作表名称
+          <input type="text" name="sheet" placeholder="留空则读取第一个工作表">
+        </label>
+        <label class="check-field">
+          <input type="checkbox" name="include_source" value="true" checked>
+          保留 _source_file 来源字段
+        </label>
+      </div>
+      <button class="primary-button" type="submit">开始合并</button>
+      <div class="status" data-status aria-live="polite"></div>
+      <div class="download-area" data-download></div>
+    </form>
+  </section>
+{% endblock %}
