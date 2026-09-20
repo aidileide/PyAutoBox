@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: pyautobox
+    runtime: python
+    plan: free
+    buildCommand: pip install .
+    startCommand: uvicorn pyautobox.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PYAUTOBOX_MAX_UPLOAD_MB
+        value: "100"
