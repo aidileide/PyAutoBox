@@ -10,7 +10,7 @@
       <strong>拖放文件到这里</strong>
       <span>也可以点击选择，支持一次添加多个文件</span>
       <button type="button" class="button secondary" id="choose-files">选择文件</button>
-      <small>{{ accept_label|default("图片、表格、JSON、YAML、Markdown、HTML 与音频文件") }} · 单文件不超过 100 MB</small>
+      <small>{{ accept_label|default("图片、表格、JSON、YAML、Markdown、HTML 与音频文件") }} · 单文件不超过 {{ max_upload_mb }} MB</small>
       <input id="file-input" type="file" multiple hidden {% if accept %}accept="{{ accept }}"{% endif %}>
     </div>
     <aside class="convert-guide" aria-label="转换步骤">

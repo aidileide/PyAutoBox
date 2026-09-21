@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyautobox"
-version = "0.2.0"
+version = "0.2.1"
 description = "A local automation and file conversion toolbox with CLI and Web UI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -64,8 +64,7 @@ packages = ["pyautobox"]
 include = [
   "pyautobox/**/*.py",
   "pyautobox/web/templates/*.html",
-  "pyautobox/web/static/**/*.css",
-  "pyautobox/web/static/**/*.js",
+  "pyautobox/web/static/**/*",
 ]
 
 [tool.pytest.ini_options]

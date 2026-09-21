@@ -288,6 +288,60 @@ async function setupEditor() {
   });
 }
 
+function setupToolBrowser() {
+  const search = byId("tool-search");
+  if (!search) return;
+  const cards = Array.from(document.querySelectorAll("[data-tool-card]"));
+  const filters = Array.from(document.querySelectorAll("[data-tool-filter]"));
+  const count = byId("tool-result-count");
+  const empty = byId("tool-empty");
+  let activeFilter = "all";
+
+  const applyFilters = () => {
+    const query = search.value.trim().toLocaleLowerCase("zh-CN");
+    let visible = 0;
+    cards.forEach((card) => {
+      const categoryMatches = activeFilter === "all" || card.dataset.category === activeFilter;
+      const textMatches = !query || card.textContent.toLocaleLowerCase("zh-CN").includes(query);
+      card.hidden = !(categoryMatches && textMatches);
+      if (!card.hidden) visible += 1;
+    });
+    document.querySelectorAll("[data-tool-group]").forEach((group) => {
+      const hasVisibleCard = Array.from(group.querySelectorAll("[data-tool-card]"))
+        .some((card) => !card.hidden);
+      group.hidden = !hasVisibleCard;
+      const heading = document.querySelector(`[data-tool-group-heading="${group.dataset.toolGroup}"]`);
+      if (heading) heading.hidden = !hasVisibleCard;
+    });
+    count.textContent = query || activeFilter !== "all" ? `找到 ${visible} 项工具` : `共 ${visible} 项工具`;
+    empty.hidden = visible !== 0;
+  };
+
+  search.addEventListener("input", applyFilters);
+  filters.forEach((button) => button.addEventListener("click", () => {
+    activeFilter = button.dataset.toolFilter;
+    filters.forEach((item) => item.classList.toggle("active", item === button));
+    applyFilters();
+  }));
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      search.focus();
+      search.select();
+    }
+  });
+  document.querySelectorAll("[data-copy-command]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.dataset.copyCommand);
+      const previous = button.textContent;
+      button.textContent = "已复制";
+      toast(`已复制：${button.dataset.copyCommand}`);
+      window.setTimeout(() => { button.textContent = previous; }, 1600);
+    });
+  });
+  applyFilters();
+}
+
 async function initialize() {
   const savedTheme = localStorage.getItem("pyautobox-theme");
   if (["light", "dark"].includes(savedTheme)) document.documentElement.dataset.theme = savedTheme;
@@ -298,6 +352,7 @@ async function initialize() {
     localStorage.setItem("pyautobox-theme", next);
     updateThemeToggle();
   });
+  setupToolBrowser();
   const response = await fetch("/api/formats");
   state.formats = (await response.json()).formats;
   const input = byId("file-input");

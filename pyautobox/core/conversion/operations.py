@@ -37,7 +37,7 @@ def convert_one(
 ) -> Path:
     """Validate paths, resolve output, and dispatch one conversion."""
     if not input_path.is_file():
-        raise InvalidFileError(f"Input file not found: {input_path}")
+        raise InvalidFileError(f"找不到输入文件：{input_path}")
     source = format_from_path(input_path)
     target = normalize_format(target_format)
     converter_registry.get_converter(source, target)
@@ -57,7 +57,7 @@ def convert_directory(
 ) -> list[Path]:
     """Convert direct child files supported by a category to one target format."""
     if not input_dir.is_dir():
-        raise InvalidFileError(f"Input directory not found: {input_dir}")
+        raise InvalidFileError(f"找不到输入目录：{input_dir}")
     target = normalize_format(target_format)
     destination = output_dir or input_dir / "output"
     supported = converter_registry.list_formats().get(category, {})

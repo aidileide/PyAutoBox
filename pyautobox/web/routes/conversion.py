@@ -11,6 +11,7 @@ from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import FileResponse
 
 from pyautobox import __version__
+from pyautobox.config import MAX_BATCH_FILES
 from pyautobox.core.conversion.audio import AUDIO_FORMATS, read_audio_metadata
 from pyautobox.core.conversion.base import normalize_format
 from pyautobox.core.conversion.registry import registry
@@ -84,8 +85,8 @@ async def convert_batch(
     quality: Annotated[int, Form(ge=1, le=100)] = 85,
 ) -> FileResponse:
     """Convert up to 100 uploads and return a ZIP archive."""
-    if not files or len(files) > 100:
-        raise InvalidFileError("请选择 1 至 100 个文件。")
+    if not files or len(files) > MAX_BATCH_FILES:
+        raise InvalidFileError(f"请选择 1 至 {MAX_BATCH_FILES} 个文件。")
     job = _job_directory()
     outputs = job / "outputs"
     outputs.mkdir()

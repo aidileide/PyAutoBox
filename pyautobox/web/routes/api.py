@@ -15,7 +15,7 @@ from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
-from pyautobox.config import DEFAULT_IMAGE_QUALITY, MAX_UPLOAD_MB
+from pyautobox.config import DEFAULT_IMAGE_QUALITY, MAX_BATCH_FILES, MAX_UPLOAD_MB
 from pyautobox.core.excel_tools import EXCEL_SUFFIXES, merge_excel_files
 from pyautobox.core.image_tools import IMAGE_SUFFIXES, compress_image
 from pyautobox.core.markdown_tools import markdown_to_pdf
@@ -43,7 +43,7 @@ def _safe_filename(raw_name: str | None) -> str:
     normalized = (raw_name or "upload").replace("\\", "/")
     name = Path(normalized).name
     if name in {"", ".", ".."}:
-        raise InvalidFileError("The uploaded file name is invalid.")
+        raise InvalidFileError("上传文件名无效。")
     return name
 
 
@@ -59,7 +59,7 @@ async def _store_upload(
         if suffix not in allowed_suffixes:
             allowed = ", ".join(sorted(allowed_suffixes))
             raise UnsupportedFormatError(
-                f"{name} has an unsupported format. Allowed: {allowed}"
+                f"不支持 {name} 的格式。可用格式：{allowed}"
             )
 
         destination = directory / f"{uuid.uuid4().hex}{suffix}"
@@ -70,7 +70,7 @@ async def _store_upload(
                 total += len(chunk)
                 if total > max_bytes:
                     raise InvalidFileError(
-                        f"{name} exceeds the {MAX_UPLOAD_MB} MB per-file upload limit."
+                        f"{name} 超过单文件 {MAX_UPLOAD_MB} MB 的上传限制。"
                     )
                 handle.write(chunk)
     except Exception:
@@ -88,7 +88,9 @@ async def _store_many(
     allowed_suffixes: set[str],
 ) -> list[StoredUpload]:
     if not uploads:
-        raise InvalidFileError("Upload at least one file.")
+        raise InvalidFileError("请至少上传一个文件。")
+    if len(uploads) > MAX_BATCH_FILES:
+        raise InvalidFileError(f"一次最多处理 {MAX_BATCH_FILES} 个文件。")
     stored: list[StoredUpload] = []
     for upload in uploads:
         stored.append(await _store_upload(upload, directory, allowed_suffixes))
@@ -239,7 +241,7 @@ async def api_md2pdf(
             stored = await _store_upload(markdown_file, job, {".md", ".markdown"})
             source = stored.path
         if source is None and not markdown_text.strip():
-            raise InvalidFileError("Upload a Markdown file or paste Markdown text.")
+            raise InvalidFileError("请上传 Markdown 文件或粘贴 Markdown 内容。")
         output = job / "converted.pdf"
         markdown_to_pdf(
             source,

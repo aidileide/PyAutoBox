@@ -34,14 +34,14 @@ class StructuredDataConverter(Converter):
             data = json.loads(text) if source == "json" else yaml.safe_load(text)
         except json.JSONDecodeError as exc:
             raise InvalidFileError(
-                f"{input_path.name} is not valid JSON. Line {exc.lineno}, column {exc.colno}."
+                f"{input_path.name} 不是有效的 JSON：第 {exc.lineno} 行，第 {exc.colno} 列。"
             ) from exc
         except yaml.YAMLError as exc:
             mark = getattr(exc, "problem_mark", None)
-            where = f" Line {mark.line + 1}, column {mark.column + 1}." if mark else ""
-            raise InvalidFileError(f"{input_path.name} is not valid YAML.{where}") from exc
+            where = f"第 {mark.line + 1} 行，第 {mark.column + 1} 列" if mark else "未知位置"
+            raise InvalidFileError(f"{input_path.name} 不是有效的 YAML：{where}。") from exc
         except (OSError, UnicodeDecodeError) as exc:
-            raise InvalidFileError(f"Could not read {input_path.name} as UTF-8 text.") from exc
+            raise InvalidFileError(f"无法以 UTF-8 文本读取 {input_path.name}。") from exc
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if target == "json":

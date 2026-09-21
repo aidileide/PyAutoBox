@@ -34,7 +34,7 @@ class ConverterRegistry:
             return self._pairs[pair]
         except KeyError as exc:
             raise ConversionNotSupportedError(
-                f"Conversion not supported: .{pair[0]} → {pair[1]}. Run 'autobox convert formats'."
+                f"暂不支持 .{pair[0]} → {pair[1]}。运行 'autobox formats' 查看可用格式。"
             ) from exc
 
     def convert(
@@ -47,7 +47,7 @@ class ConverterRegistry:
         source = format_from_path(input_path)
         target = format_from_path(output_path)
         if not source:
-            raise UnsupportedFormatError(f"Cannot detect format for {input_path.name}.")
+            raise UnsupportedFormatError(f"无法识别 {input_path.name} 的格式。")
         return self.get_converter(source, target).convert(input_path, output_path, options)
 
     def list_formats(self) -> dict[str, dict[str, list[str]]]:
