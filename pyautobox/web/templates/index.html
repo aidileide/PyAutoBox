@@ -1,44 +1,35 @@
 {% extends "base.html" %}
-{% block title %}PyAutoBox - Personal Automation Toolbox{% endblock %}
 {% block content %}
-  <section class="hero">
-    <p class="eyebrow">PERSONAL AUTOMATION TOOLBOX</p>
-    <h1>PyAutoBox</h1>
-    <p>Simple tools. Less repetitive work.</p>
-  </section>
-
-  <section class="tool-grid" aria-label="工具列表">
-    <a class="tool-card" href="{{ url_for('pdf_merge_page') }}">
-      <span class="tool-icon">PDF</span>
-      <h2>PDF 合并</h2>
-      <p>按顺序合并多个 PDF，完成后直接下载。</p>
-    </a>
-    <a class="tool-card" href="{{ url_for('excel_merge_page') }}">
-      <span class="tool-icon">XLS</span>
-      <h2>Excel 合并</h2>
-      <p>纵向合并表格，自动对齐所有列。</p>
-    </a>
-    <a class="tool-card" href="{{ url_for('image_compress_page') }}">
-      <span class="tool-icon">IMG</span>
-      <h2>图片压缩</h2>
-      <p>批量压缩图片并可限制最大宽度。</p>
-    </a>
-    <article class="tool-card local-only">
-      <span class="tool-icon">REN</span>
-      <h2>批量重命名</h2>
-      <p>本地文件操作，请使用 <code>autobox rename</code>。</p>
-      <span class="local-badge">CLI 安全模式</span>
-    </article>
-    <a class="tool-card" href="{{ url_for('md2pdf_page') }}">
-      <span class="tool-icon">MD</span>
-      <h2>Markdown 转 PDF</h2>
-      <p>上传或粘贴 Markdown，快速生成 PDF。</p>
-    </a>
-    <article class="tool-card local-only">
-      <span class="tool-icon">DIR</span>
-      <h2>文件整理</h2>
-      <p>为避免访问任意本地目录，请使用 <code>autobox clean-desktop</code>。</p>
-      <span class="local-badge">仅限 CLI</span>
-    </article>
-  </section>
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow"><span></span>LOCAL · PRIVATE · OPEN SOURCE</p>
+    <h1>一个工具箱，<br>搞定<span>文件与自动化</span></h1>
+    <p class="hero-copy">合并 PDF 和表格、压缩与转换图片、处理结构化数据、整理文件。无需账号，文件只在你的电脑上处理。</p>
+    <div class="hero-actions"><a class="button primary large" href="#converter">立即转换 ↓</a><a class="button quiet large" href="#tools">浏览全部工具</a></div>
+    <div class="hero-proof"><span><b>✓</b> 无需注册</span><span><b>✓</b> 单文件 {{ max_upload_mb }} MB</span><span><b>✓</b> CLI + Web</span></div>
+  </div>
+  <div class="format-stage" aria-label="自动化与文件转换"><div class="stage-grid" aria-hidden="true"></div><div class="format-chip chip-jpg"><b>PDF</b><small>合并</small></div><div class="format-chip chip-xlsx"><b>XLSX</b><small>表格</small></div><div class="format-chip chip-json"><b>{ }</b><small>数据</small></div><div class="format-chip chip-md"><b>MD</b><small>文档</small></div><div class="format-chip chip-yaml"><b>IMG</b><small>图片</small></div><div class="format-core"><span class="core-mark">P</span><strong>本地处理</strong><small>文件不出设备</small></div><div class="stage-caption"><span class="pulse-dot"></span>工具引擎已就绪</div></div>
+</section>
+<section class="metrics"><div><strong>13</strong><span>项实用工具</span></div><div><strong>14+</strong><span>种常用格式</span></div><div><strong>0 B</strong><span>上传到云端</span></div><div><strong>100%</strong><span>开源可审计</span></div></section>
+{% include "converter.html" %}
+<section class="tools-section" id="tools">
+  <div class="section-heading"><div><p class="eyebrow"><span></span>AUTOMATION</p><h2>自动化工具</h2></div><p>高频任务直接完成，命令行还提供批量重命名与文件夹整理。</p></div>
+  <div class="tool-grid">
+    <a class="tool-card rose" href="/tools/pdf-merge"><span class="tool-index">01</span><span class="tool-icon">PDF</span><h3>PDF 合并</h3><p>按指定顺序合并多个 PDF 文件。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card green" href="/tools/excel-merge"><span class="tool-index">02</span><span class="tool-icon">XLS</span><h3>Excel 合并</h3><p>按行合并工作表并记录数据来源。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card violet" href="/tools/image-compress"><span class="tool-index">03</span><span class="tool-icon">IMG</span><h3>图片压缩</h3><p>批量压缩并限制最大宽度。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card orange" href="/tools/md2pdf"><span class="tool-index">04</span><span class="tool-icon">MD</span><h3>Markdown 转 PDF</h3><p>上传或粘贴 Markdown 生成 PDF。</p><span class="card-link">打开工具 ↗</span></a>
+  </div>
+  <div class="section-heading secondary-heading"><div><p class="eyebrow"><span></span>CONVERSION</p><h2>格式转换</h2></div><p>单文件或批量处理，转换完成后临时文件自动清理。</p></div>
+  <div class="tool-grid">
+    <a class="tool-card violet" href="/tools/convert/image"><span class="tool-index">05</span><span class="tool-icon">IMG</span><h3>图片格式转换</h3><p>PNG、JPG、WebP、BMP、TIFF 互转。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card green" href="/tools/convert/table"><span class="tool-index">06</span><span class="tool-icon">CSV</span><h3>表格格式转换</h3><p>CSV、XLSX 与 JSON 记录互转。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card blue" href="/tools/convert/json-yaml"><span class="tool-index">07</span><span class="tool-icon">{ }</span><h3>JSON ↔ YAML</h3><p>安全解析，完整保留中文字符。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card orange" href="/tools/convert/markdown"><span class="tool-index">08</span><span class="tool-icon">MD</span><h3>Markdown 转换</h3><p>生成 HTML 页面或纯文本。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card rose" href="/tools/convert/text"><span class="tool-index">09</span><span class="tool-icon">TXT</span><h3>文本内容提取</h3><p>从 HTML 与 Markdown 提取可读文本。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card cyan" href="/tools/convert/audio"><span class="tool-index">10</span><span class="tool-icon">ID3</span><h3>音频信息查看</h3><p>读取标签、时长、码率和采样率。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card yellow featured" href="/tools/convert/batch"><span class="tool-index">11</span><span class="tool-icon">ZIP</span><h3>批量文件转换</h3><p>一次转换多个文件并打包下载。</p><span class="card-link">打开工具 ↗</span></a>
+  </div>
+</section>
+<section class="privacy-banner" id="privacy"><div class="privacy-copy"><p class="eyebrow"><span></span>PRIVACY BY DESIGN</p><h2>文件真的留在本地。</h2><p>浏览器只连接当前 PyAutoBox 服务。处理使用随机临时目录，请求结束后自动清理。</p><ul><li><span>✓</span> 无账号与行为追踪</li><li><span>✓</span> 文件名安全清理</li><li><span>✓</span> 开源代码可检查</li></ul></div><div class="privacy-terminal"><div class="terminal-head"><i></i><i></i><i></i><span>pyautobox.local</span></div><div class="terminal-body"><p><span>$</span> autobox serve</p><p class="terminal-muted">✓ 服务运行于 127.0.0.1</p><p class="terminal-muted">✓ 临时文件自动清理</p><p class="terminal-success">● 本地模式已启用</p></div></div></section>
 {% endblock %}

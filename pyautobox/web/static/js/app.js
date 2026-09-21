@@ -1,205 +1,333 @@
 "use strict";
 
-const formatBytes = (bytes) => {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB"];
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`;
-};
+const state = { files: [], formats: {} };
 
-const responseFilename = (response) => {
-  const disposition = response.headers.get("content-disposition") || "";
-  const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i);
-  if (encoded) return decodeURIComponent(encoded[1]);
-  const plain = disposition.match(/filename="?([^";]+)"?/i);
-  return plain ? plain[1] : "pyautobox-download";
-};
+function byId(id) { return document.getElementById(id); }
 
-const safeMarkdownPreview = (source) => {
-  const escaped = source
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-  const lines = escaped.split("\n");
-  let inCode = false;
-  let html = "";
-  for (const rawLine of lines) {
-    let line = rawLine;
-    if (line.trim().startsWith("```")) {
-      html += inCode ? "</code></pre>" : "<pre><code>";
-      inCode = !inCode;
-      continue;
-    }
-    if (inCode) {
-      html += `${line}\n`;
-      continue;
-    }
-    line = line
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>");
-    if (/^###\s+/.test(line)) html += `<h3>${line.replace(/^###\s+/, "")}</h3>`;
-    else if (/^##\s+/.test(line)) html += `<h2>${line.replace(/^##\s+/, "")}</h2>`;
-    else if (/^#\s+/.test(line)) html += `<h1>${line.replace(/^#\s+/, "")}</h1>`;
-    else if (/^>\s?/.test(line)) html += `<blockquote>${line.replace(/^>\s?/, "")}</blockquote>`;
-    else if (/^[-*+]\s+/.test(line)) html += `<p>• ${line.replace(/^[-*+]\s+/, "")}</p>`;
-    else if (line.trim()) html += `<p>${line}</p>`;
+function normalizeFormat(name) {
+  const extension = name.includes(".") ? name.split(".").pop().toLowerCase() : name.toLowerCase();
+  return ({ jpeg: "jpg", yml: "yaml", markdown: "md", htm: "html" })[extension] || extension;
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+}
+
+function toast(message) {
+  const element = byId("toast");
+  element.textContent = message;
+  element.classList.add("visible");
+  window.setTimeout(() => element.classList.remove("visible"), 2600);
+}
+
+function updateThemeToggle() {
+  const button = byId("theme-toggle");
+  const dark = document.documentElement.dataset.theme === "dark";
+  const label = dark ? "切换浅色模式" : "切换深色模式";
+  button.setAttribute("aria-label", label);
+  button.setAttribute("title", label);
+  button.querySelector("span").textContent = dark ? "☀" : "◐";
+}
+
+function availableTargets(source) {
+  const targets = new Set();
+  Object.values(state.formats).forEach((sources) => {
+    (sources[source] || []).forEach((target) => targets.add(target));
+  });
+  return Array.from(targets).sort();
+}
+
+function refreshTargets() {
+  const select = byId("target-format");
+  if (!select) return;
+  select.replaceChildren();
+  if (!state.files.length) return;
+  const shared = state.files
+    .map((file) => new Set(availableTargets(normalizeFormat(file.name))))
+    .reduce((left, right) => new Set(Array.from(left).filter((item) => right.has(item))));
+  Array.from(shared).forEach((target) => {
+    const option = document.createElement("option");
+    option.value = target;
+    option.textContent = target.toUpperCase();
+    select.append(option);
+  });
+  if (!select.options.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "没有共同的输出格式";
+    select.append(option);
   }
-  return html || '<p class="preview-placeholder">预览会显示在这里。</p>';
-};
+  updateOptionVisibility();
+}
 
-document.querySelectorAll("[data-api-form]").forEach((form) => {
-  const input = form.querySelector("[data-file-input]");
-  const zone = form.querySelector("[data-upload-zone]");
-  const list = form.querySelector("[data-file-list]");
-  const status = form.querySelector("[data-status]");
-  const downloadArea = form.querySelector("[data-download]");
-  const submitButton = form.querySelector('button[type="submit"]');
-  const singleFile = form.dataset.singleFile === "true";
-  const orderable = form.dataset.orderable === "true";
-  let files = [];
-  let objectUrl = null;
+function renderFiles() {
+  const workspace = byId("workspace");
+  const list = byId("file-list");
+  if (!workspace || !list) return;
+  workspace.classList.toggle("hidden", state.files.length === 0);
+  byId("file-count").textContent = `已选择 ${state.files.length} 个文件`;
+  list.replaceChildren();
+  state.files.forEach((file, index) => {
+    const row = document.createElement("li");
+    row.className = "file-row";
+    const badge = document.createElement("span");
+    badge.className = "file-badge";
+    badge.textContent = normalizeFormat(file.name).toUpperCase().slice(0, 4);
+    const meta = document.createElement("div");
+    meta.className = "file-meta";
+    const name = document.createElement("strong");
+    name.textContent = file.name;
+    const detected = document.createElement("span");
+    detected.textContent = `已识别：${normalizeFormat(file.name).toUpperCase()}`;
+    meta.append(name, detected);
+    const size = document.createElement("span");
+    size.className = "file-size";
+    size.textContent = formatBytes(file.size);
+    const remove = document.createElement("button");
+    remove.className = "remove-file";
+    remove.type = "button";
+    remove.setAttribute("aria-label", `移除 ${file.name}`);
+    remove.textContent = "×";
+    remove.addEventListener("click", () => {
+      state.files.splice(index, 1);
+      renderFiles();
+    });
+    row.append(badge, meta, size, remove);
+    list.append(row);
+  });
+  refreshTargets();
+}
 
-  const renderFiles = () => {
-    list.replaceChildren();
-    files.forEach((file, index) => {
-      const row = document.createElement("div");
-      row.className = "file-row";
+function addFiles(files) {
+  const known = new Set(state.files.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+  Array.from(files).forEach((file) => {
+    const key = `${file.name}:${file.size}:${file.lastModified}`;
+    if (!known.has(key)) state.files.push(file);
+  });
+  renderFiles();
+  if (document.body.dataset.tool === "table" && state.files.length === 1) inspectTable();
+}
 
-      const name = document.createElement("span");
-      name.className = "file-name";
-      name.textContent = file.name;
-      const size = document.createElement("span");
-      size.className = "file-size";
-      size.textContent = formatBytes(file.size);
-      const actions = document.createElement("span");
-      actions.className = "file-actions";
-
-      if (orderable) {
-        [["↑", -1], ["↓", 1]].forEach(([label, delta]) => {
-          const move = document.createElement("button");
-          move.type = "button";
-          move.className = "icon-button";
-          move.textContent = label;
-          move.title = delta < 0 ? "上移" : "下移";
-          move.disabled = index + delta < 0 || index + delta >= files.length;
-          move.addEventListener("click", () => {
-            [files[index], files[index + delta]] = [files[index + delta], files[index]];
-            renderFiles();
-          });
-          actions.append(move);
-        });
-      }
-
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "icon-button";
-      remove.textContent = "×";
-      remove.title = "删除";
-      remove.addEventListener("click", () => {
-        files.splice(index, 1);
-        renderFiles();
+async function inspectTable() {
+  const form = new FormData();
+  form.append("file", state.files[0]);
+  const selectedSheet = byId("sheet-select").value;
+  if (selectedSheet) form.append("sheet", selectedSheet);
+  try {
+    const response = await fetch("/api/table/preview", { method: "POST", body: form });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || "无法预览表格。请检查文件内容。");
+    const result = byId("result");
+    result.textContent = `${payload.filename} · ${payload.rows} 行 × ${payload.columns} 列 · 字段：${payload.column_names.join("、")}`;
+    result.classList.remove("hidden", "error");
+    const sheetControl = byId("sheet-control");
+    const sheetSelect = byId("sheet-select");
+    sheetControl.classList.toggle("hidden", payload.sheets.length < 2);
+    if (payload.sheets.length && sheetSelect.options.length === 0) {
+      payload.sheets.forEach((sheet) => {
+        const option = document.createElement("option");
+        option.value = sheet;
+        option.textContent = sheet;
+        sheetSelect.append(option);
       });
-      actions.append(remove);
-      row.append(name, size, actions);
-      list.append(row);
-    });
-  };
-
-  const setFiles = (incoming) => {
-    const selected = Array.from(incoming);
-    files = singleFile ? selected.slice(0, 1) : selected;
-    renderFiles();
-  };
-
-  zone.addEventListener("click", () => input.click());
-  zone.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      input.click();
     }
-  });
-  input.addEventListener("change", () => setFiles(input.files));
-  ["dragenter", "dragover"].forEach((eventName) => {
-    zone.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      zone.classList.add("dragover");
-    });
-  });
-  ["dragleave", "drop"].forEach((eventName) => {
-    zone.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      zone.classList.remove("dragover");
-    });
-  });
-  zone.addEventListener("drop", (event) => setFiles(event.dataTransfer.files));
+  } catch (error) {
+    toast(error instanceof Error ? error.message : "无法预览表格。请检查文件内容。");
+  }
+}
 
-  form.addEventListener("submit", async (event) => {
+function updateOptionVisibility() {
+  const source = state.files[0] ? normalizeFormat(state.files[0].name) : "";
+  const target = byId("target-format")?.value || "";
+  const image = ["jpg", "png", "webp", "bmp", "tiff"].includes(source);
+  byId("quality-control")?.classList.toggle("hidden", !image || !["jpg", "webp"].includes(target));
+  byId("width-control")?.classList.toggle("hidden", !image);
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename.replace(/[\\/:*?"<>|]/g, "_");
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function responseFilename(response, fallback) {
+  const disposition = response.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename\*?=(?:UTF-8''|\")?([^";]+)/i);
+  return match ? decodeURIComponent(match[1].replace(/"/g, "")) : fallback;
+}
+
+async function convertFiles() {
+  const button = byId("convert-button");
+  const result = byId("result");
+  const target = byId("target-format").value;
+  if (!state.files.length || !target) return toast("请先选择格式兼容的文件。");
+  button.disabled = true;
+  button.classList.add("is-loading");
+  byId("convert-button-label").textContent = "正在转换…";
+  result.className = "result hidden";
+  const form = new FormData();
+  const isBatch = state.files.length > 1;
+  if (isBatch) state.files.forEach((file) => form.append("files", file));
+  else form.append("file", state.files[0]);
+  form.append("target", target);
+  form.append("quality", byId("quality").value || "85");
+  if (byId("max-width").value) form.append("max_width", byId("max-width").value);
+  if (byId("sheet-select").value) form.append("sheet", byId("sheet-select").value);
+  try {
+    const response = await fetch(isBatch ? "/api/batch" : "/api/convert", { method: "POST", body: form });
+    if (!response.ok) {
+      const payload = await response.json();
+      throw new Error(payload.detail || "转换失败，请检查文件格式。");
+    }
+    const blob = await response.blob();
+    const fallback = isBatch ? "pyautobox-results.zip" : `${state.files[0].name.split(".")[0]}.${target}`;
+    const filename = responseFilename(response, fallback);
+    result.replaceChildren();
+    const grid = document.createElement("div");
+    grid.className = "result-grid";
+    const summary = document.createElement("div");
+    const heading = document.createElement("strong");
+    heading.textContent = "转换完成，可以下载了";
+    const detail = document.createElement("div");
+    const original = state.files.reduce((sum, file) => sum + file.size, 0);
+    const reduction = original ? Math.round((1 - blob.size / original) * 100) : 0;
+    detail.textContent = `${formatBytes(original)} → ${formatBytes(blob.size)} · 体积变化 ${reduction}%`;
+    summary.append(heading, detail);
+    const download = document.createElement("button");
+    download.className = "button primary";
+    download.type = "button";
+    download.textContent = "下载文件";
+    download.addEventListener("click", () => downloadBlob(blob, filename));
+    grid.append(summary, download);
+    result.append(grid);
+    result.classList.remove("hidden", "error");
+    downloadBlob(blob, filename);
+  } catch (error) {
+    result.textContent = error instanceof Error ? error.message : "转换失败，请稍后重试。";
+    result.classList.remove("hidden");
+    result.classList.add("error");
+  } finally {
+    button.disabled = false;
+    button.classList.remove("is-loading");
+    byId("convert-button-label").textContent = "开始转换";
+  }
+}
+
+async function inspectAudio() {
+  const button = byId("convert-button");
+  const result = byId("result");
+  if (state.files.length !== 1) return toast("请选择一个音频文件。");
+  button.disabled = true;
+  button.classList.add("is-loading");
+  byId("convert-button-label").textContent = "正在读取…";
+  const form = new FormData();
+  form.append("file", state.files[0]);
+  try {
+    const response = await fetch("/api/audio/metadata", { method: "POST", body: form });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || "无法读取音频信息。");
+    const serialized = JSON.stringify(payload.metadata, null, 2);
+    result.replaceChildren();
+    const grid = document.createElement("div");
+    grid.className = "result-grid";
+    const pre = document.createElement("pre");
+    pre.textContent = serialized;
+    const download = document.createElement("button");
+    download.className = "button primary";
+    download.type = "button";
+    download.textContent = "下载 JSON";
+    download.addEventListener("click", () => downloadBlob(new Blob([serialized], { type: "application/json" }), "audio-metadata.json"));
+    grid.append(pre, download);
+    result.append(grid);
+    result.classList.remove("hidden", "error");
+  } catch (error) {
+    result.textContent = error instanceof Error ? error.message : "无法读取音频信息。";
+    result.classList.remove("hidden");
+    result.classList.add("error");
+  } finally {
+    button.disabled = false;
+    button.classList.remove("is-loading");
+    byId("convert-button-label").textContent = "读取音频信息";
+  }
+}
+
+async function setupEditor() {
+  const button = byId("editor-convert");
+  if (!button) return;
+  let resultBlob = null;
+  let resultName = "result.yaml";
+  button.addEventListener("click", async () => {
+    const source = byId("editor-source").value;
+    const target = source === "json" ? "yaml" : "json";
+    const file = new File([byId("editor-input").value], `input.${source}`, { type: "text/plain" });
+    const form = new FormData();
+    form.append("file", file);
+    form.append("target", target);
+    const response = await fetch("/api/convert", { method: "POST", body: form });
+    if (!response.ok) {
+      const payload = await response.json();
+      return toast(payload.detail || "转换失败，请检查输入内容。");
+    }
+    resultBlob = await response.blob();
+    resultName = `result.${target}`;
+    byId("editor-output").value = await resultBlob.text();
+  });
+  byId("editor-copy").addEventListener("click", async () => {
+    await navigator.clipboard.writeText(byId("editor-output").value);
+    toast("已复制到剪贴板。");
+  });
+  byId("editor-download").addEventListener("click", () => {
+    if (resultBlob) downloadBlob(resultBlob, resultName);
+  });
+}
+
+async function initialize() {
+  const savedTheme = localStorage.getItem("pyautobox-theme");
+  if (["light", "dark"].includes(savedTheme)) document.documentElement.dataset.theme = savedTheme;
+  updateThemeToggle();
+  byId("theme-toggle").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("pyautobox-theme", next);
+    updateThemeToggle();
+  });
+  const response = await fetch("/api/formats");
+  state.formats = (await response.json()).formats;
+  const input = byId("file-input");
+  const dropZone = byId("drop-zone");
+  if (!input || !dropZone) return;
+  byId("choose-files").addEventListener("click", (event) => { event.stopPropagation(); input.click(); });
+  dropZone.addEventListener("click", () => input.click());
+  dropZone.addEventListener("keydown", (event) => { if (["Enter", " "].includes(event.key)) input.click(); });
+  input.addEventListener("change", () => addFiles(input.files));
+  ["dragenter", "dragover"].forEach((name) => dropZone.addEventListener(name, (event) => {
     event.preventDefault();
-    status.className = "status visible loading";
-    status.textContent = "正在处理，请稍候…";
-    downloadArea.replaceChildren();
-    submitButton.disabled = true;
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-
-    const payload = new FormData(form);
-    payload.delete(form.dataset.fileField);
-    files.forEach((file) => payload.append(form.dataset.fileField, file, file.name));
-    if (form.querySelector('[name="include_source"]')) {
-      const checkbox = form.querySelector('[name="include_source"]');
-      payload.set("include_source", checkbox.checked ? "true" : "false");
-    }
-    const maxWidth = form.querySelector('[name="max_width"]');
-    if (maxWidth && !maxWidth.value) payload.delete("max_width");
-
-    try {
-      const response = await fetch(form.dataset.endpoint, { method: "POST", body: payload });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.detail || data.error || `请求失败（${response.status}）`);
-      }
-      const blob = await response.blob();
-      objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.className = "download-button";
-      link.href = objectUrl;
-      link.download = responseFilename(response);
-      link.textContent = "下载结果";
-      downloadArea.append(link);
-      status.className = "status visible success";
-      status.textContent = "处理成功，文件已准备好。";
-
-      const stats = form.querySelector("[data-compression-stats]");
-      if (stats) {
-        const original = Number(response.headers.get("x-original-size"));
-        const compressed = Number(response.headers.get("x-compressed-size"));
-        const saved = response.headers.get("x-saved-percent");
-        stats.hidden = false;
-        stats.textContent = `原大小 ${formatBytes(original)} · 压缩后 ${formatBytes(compressed)} · 节省 ${saved}%`;
-      }
-    } catch (error) {
-      status.className = "status visible error";
-      status.textContent = error.message || "处理失败，请检查文件后重试。";
-    } finally {
-      submitButton.disabled = false;
-    }
-  });
-});
-
-const qualitySlider = document.querySelector("[data-quality-slider]");
-if (qualitySlider) {
-  const qualityOutput = document.querySelector("[data-quality-output]");
-  qualitySlider.addEventListener("input", () => {
-    qualityOutput.value = qualitySlider.value;
-  });
+    dropZone.classList.add("dragging");
+  }));
+  ["dragleave", "drop"].forEach((name) => dropZone.addEventListener(name, (event) => {
+    event.preventDefault();
+    dropZone.classList.remove("dragging");
+  }));
+  dropZone.addEventListener("drop", (event) => addFiles(event.dataTransfer.files));
+  byId("remove-all").addEventListener("click", () => { state.files = []; renderFiles(); });
+  byId("target-format").addEventListener("change", updateOptionVisibility);
+  byId("sheet-select").addEventListener("change", inspectTable);
+  const isAudio = document.body.dataset.tool === "audio";
+  if (isAudio) {
+    byId("target-format").closest("label").classList.add("hidden");
+    byId("quality-control").classList.add("hidden");
+    byId("width-control").classList.add("hidden");
+    byId("convert-button-label").textContent = "读取音频信息";
+  }
+  byId("convert-button").addEventListener("click", isAudio ? inspectAudio : convertFiles);
+  setupEditor();
 }
 
-const markdownInput = document.querySelector("[data-markdown-input]");
-if (markdownInput) {
-  const markdownPreview = document.querySelector("[data-markdown-preview]");
-  const updatePreview = () => {
-    markdownPreview.innerHTML = safeMarkdownPreview(markdownInput.value);
-  };
-  markdownInput.addEventListener("input", updatePreview);
-  updatePreview();
-}
+document.addEventListener("DOMContentLoaded", () => initialize().catch(() => toast("PyAutoBox 初始化失败，请刷新页面。")));

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ tool_title }} · PyAutoBox{% endblock %}
+{% block content %}
+<section class="tool-hero">
+  <a href="/#tools" class="back-link">← 返回全部工具</a>
+  <div class="tool-hero-grid">
+    <div>
+      <p class="eyebrow"><span></span>{{ tool_kicker }}</p>
+      <h1>{{ tool_title }}</h1>
+      <p>{{ tool_description }}</p>
+    </div>
+    <div class="tool-badge"><span>{{ tool_code }}</span><small>本地处理<br>完成即清理</small></div>
+  </div>
+</section>
+{% include "converter.html" %}
+{% if tool == "json-yaml" %}
+<section class="editor-card" id="text-editor">
+  <div class="editor-head"><div><p class="eyebrow"><span></span>PASTE & CONVERT</p><h2>直接粘贴 JSON 或 YAML</h2></div><span class="encoding-pill">UTF-8</span></div>
+  <div class="editor-grid">
+    <label>输入内容<textarea id="editor-input" spellcheck="false" placeholder='{"message": "你好，PyAutoBox"}'></textarea></label>
+    <label>转换结果<textarea id="editor-output" spellcheck="false" readonly placeholder="结果会显示在这里"></textarea></label>
+  </div>
+  <div class="editor-actions">
+    <label>输入格式<select id="editor-source"><option value="json">JSON</option><option value="yaml">YAML</option></select></label>
+    <button class="button secondary" id="editor-convert" type="button">立即转换</button>
+    <button class="button ghost" id="editor-copy" type="button">复制结果</button>
+    <button class="button ghost" id="editor-download" type="button">下载文件</button>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+

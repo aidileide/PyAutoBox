@@ -19,3 +19,15 @@ class FileConflictError(PyAutoBoxError):
 
 class ToolExecutionError(PyAutoBoxError):
     """Raised when an underlying library cannot complete a tool operation."""
+
+
+class ConversionNotSupportedError(PyAutoBoxError):
+    """Raised when no converter supports a source and target format pair."""
+
+
+class FileTooLargeError(PyAutoBoxError):
+    """Raised when an upload exceeds the configured limit."""
+
+
+class ConversionFailedError(PyAutoBoxError):
+    """Raised when an otherwise supported conversion fails."""
