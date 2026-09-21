@@ -1,0 +1,42 @@
+<section class="converter-shell" id="converter" aria-labelledby="converter-title">
+  <div class="converter-heading">
+    <div><p class="eyebrow"><span></span>QUICK CONVERT</p><h2 id="converter-title">拖进文件，选择格式，完成</h2></div>
+    <span class="privacy-note"><span class="status-dot"></span>文件仅在本机处理</span>
+  </div>
+  <div class="converter-body">
+    <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="选择需要转换的文件">
+      <div class="drop-rings" aria-hidden="true"><span></span><span></span></div>
+      <div class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></div>
+      <strong>拖放文件到这里</strong>
+      <span>也可以点击选择，支持一次添加多个文件</span>
+      <button type="button" class="button secondary" id="choose-files">选择文件</button>
+      <small>{{ accept_label|default("图片、表格、JSON、YAML、Markdown、HTML 与音频文件") }} · 单文件不超过 100 MB</small>
+      <input id="file-input" type="file" multiple hidden {% if accept %}accept="{{ accept }}"{% endif %}>
+    </div>
+    <aside class="convert-guide" aria-label="转换步骤">
+      <div class="guide-head"><span>操作流程</span><small>约 10 秒</small></div>
+      <ol>
+        <li><b>01</b><div><strong>加入文件</strong><span>拖放或从电脑选择</span></div></li>
+        <li><b>02</b><div><strong>选择输出格式</strong><span>自动显示兼容选项</span></div></li>
+        <li><b>03</b><div><strong>下载结果</strong><span>完成后自动保存</span></div></li>
+      </ol>
+      <div class="guide-safe"><span>⌁</span><div><strong>无需联网</strong><small>处理过程不会发送到第三方</small></div></div>
+    </aside>
+  </div>
+  <div id="workspace" class="workspace hidden">
+    <div class="workspace-top">
+      <div><span class="label">待处理文件</span><strong id="file-count">已选择 0 个文件</strong></div>
+      <button id="remove-all" class="text-button" type="button">清空列表</button>
+    </div>
+    <ul id="file-list" class="file-list"></ul>
+    <div class="conversion-controls">
+      <label>输出格式<select id="target-format"></select></label>
+      <label id="quality-control">图片质量<input id="quality" type="number" min="1" max="100" value="85"></label>
+      <label id="width-control">最大宽度<input id="max-width" type="number" min="1" placeholder="保持原尺寸"></label>
+      <label id="sheet-control" class="hidden">工作表<select id="sheet-select"></select></label>
+      <button id="convert-button" class="button primary convert-button" type="button"><span id="convert-button-label">开始转换</span><span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+  <div id="result" class="result hidden" aria-live="polite"></div>
+</section>
+

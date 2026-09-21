@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://www.python.org/"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
-  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.1.0-4f46e5"></a>
+  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-4f46e5"></a>
   <a href="https://github.com/aidileide/PyAutoBox/actions"><img alt="Tests" src="https://github.com/aidileide/PyAutoBox/actions/workflows/tests.yml/badge.svg"></a>
   <a href="https://pypi.org/project/pyautobox/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pyautobox?label=PyPI"></a>
   <a href="https://github.com/aidileide/PyAutoBox/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/aidileide/PyAutoBox?style=flat"></a>
@@ -28,15 +28,16 @@ CLI 和 Web 不重复实现业务逻辑：两者都调用 `pyautobox/core/` 中�
 - 批量重命名：先预览、检测冲突，再通过两阶段重命名避免名称链冲突。
 - Markdown 转 PDF：支持标题、文本、粗体、斜体、列表、代码块、引用和链接文本。
 - 文件夹整理：只移动、不删除，默认 dry-run，并支持撤销最近一次整理。
+- 万能格式转换：图片、CSV/XLSX/JSON、JSON/YAML、Markdown/HTML/TXT 互转。
+- 音频信息查看：读取 MP3、FLAC、M4A、OGG 的标签与技术参数。
+- 批量转换：多文件 Web 打包下载，CLI 支持目录递归转换。
 - 本地 Web UI：拖拽上传、异步处理、结果下载、响应式布局。
 
 ## Web UI
 
 <p align="center">
-  <img src="docs/web-ui-placeholder.svg" width="820" alt="PyAutoBox Web UI screenshot placeholder">
+  <img src="docs/web-ui.png" width="820" alt="PyAutoBox 中文 Web UI">
 </p>
-
-> 截图占位：项目发布后可替换为实际首页截图。
 
 ## 安装
 
@@ -75,8 +76,24 @@ autobox --help
 autobox version
 autobox pdf merge a.pdf b.pdf -o merged.pdf
 autobox image compress photo.jpg --quality 75 --max-width 1920
+autobox convert data.json --to yaml
+autobox batch-convert ./images --from png --to webp
 autobox serve
 ```
+
+### 格式转换
+
+```bash
+autobox formats
+autobox convert photo.png --to webp --quality 82
+autobox convert report.csv --to xlsx
+autobox convert config.json --to yaml
+autobox convert README.md --to html
+autobox batch-convert ./photos --from png --to jpg --recursive
+autobox audio-info song.mp3 --output metadata.json
+```
+
+输出文件已存在时自动生成不冲突的文件名；使用 `--force` 才会覆盖。Web 首页也提供同一套转换能力。
 
 打开浏览器访问 <http://127.0.0.1:8000>。
 
@@ -158,8 +175,9 @@ autobox serve
 autobox serve --port 8080
 ```
 
-Web UI 提供 PDF 合并、Excel 合并、图片压缩、Markdown 转 PDF。批量重命名和文件整理只在
-CLI 中开放，Web 不接受服务器路径，也不能浏览任意本地文件系统。
+Web UI 提供 PDF 合并、Excel 合并、图片压缩、Markdown 转 PDF，以及图片、表格、结构化
+数据、文档和批量格式转换。批量重命名和文件整理只在 CLI 中开放；Web 不接受服务器路径，
+也不能浏览任意本地文件系统。
 
 上传安全设计：
 

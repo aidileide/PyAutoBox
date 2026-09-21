@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import glob
+import json
 import logging
 from pathlib import Path
 from typing import Annotated
@@ -11,6 +12,10 @@ import typer
 
 from pyautobox import __version__
 from pyautobox.config import DEFAULT_IMAGE_QUALITY, DEFAULT_PORT
+from pyautobox.core.conversion.audio import read_audio_metadata
+from pyautobox.core.conversion.batch import batch_convert
+from pyautobox.core.conversion.operations import convert_one
+from pyautobox.core.conversion.registry import registry
 from pyautobox.core.excel_tools import merge_excel_files
 from pyautobox.core.image_tools import compress_image
 from pyautobox.core.markdown_tools import markdown_to_pdf
@@ -194,6 +199,91 @@ def md2pdf_command(
         typer.secho(f"Created: {result}", fg=typer.colors.GREEN)
     except PyAutoBoxError as exc:
         _fail(exc)
+
+
+@app.command("convert")
+def convert_command(
+    input_file: Annotated[Path, typer.Argument(help="要转换的文件。")],
+    target: Annotated[str, typer.Option("--to", help="目标格式，不含点号。")],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    quality: Annotated[int, typer.Option("--quality", min=1, max=100)] = 85,
+    max_width: Annotated[int | None, typer.Option("--max-width", min=1)] = None,
+    max_height: Annotated[int | None, typer.Option("--max-height", min=1)] = None,
+    sheet: Annotated[str | None, typer.Option("--sheet")] = None,
+    force: Annotated[bool, typer.Option("--force", help="覆盖已有输出文件。")] = False,
+) -> None:
+    """转换图片、表格、JSON/YAML、Markdown 或 HTML 文件。"""
+    try:
+        result = convert_one(
+            input_file,
+            target,
+            output,
+            overwrite=force,
+            options={
+                "quality": quality,
+                "max_width": max_width,
+                "max_height": max_height,
+                "sheet": sheet,
+                "pretty": True,
+                "standalone": True,
+            },
+        )
+        typer.secho(f"已生成：{result}", fg=typer.colors.GREEN)
+    except PyAutoBoxError as exc:
+        _fail(exc)
+
+
+@app.command("batch-convert")
+def batch_convert_command(
+    input_dir: Annotated[Path, typer.Argument(help="输入目录。")],
+    source: Annotated[str, typer.Option("--from", help="源格式。")],
+    target: Annotated[str, typer.Option("--to", help="目标格式。")],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    recursive: Annotated[bool, typer.Option("--recursive")] = False,
+    force: Annotated[bool, typer.Option("--force")] = False,
+) -> None:
+    """批量转换目录中的同类文件。"""
+    try:
+        results = batch_convert(
+            input_dir,
+            source,
+            target,
+            output,
+            recursive=recursive,
+            overwrite=force,
+        )
+        if not results:
+            typer.secho("没有找到可转换文件。", fg=typer.colors.YELLOW)
+        for result in results:
+            typer.echo(str(result))
+    except PyAutoBoxError as exc:
+        _fail(exc)
+
+
+@app.command("audio-info")
+def audio_info_command(
+    input_file: Annotated[Path, typer.Argument(help="MP3、FLAC、M4A 或 OGG 文件。")],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """读取音频标签与技术信息。"""
+    try:
+        text = json.dumps(read_audio_metadata(input_file), ensure_ascii=False, indent=2)
+        if output:
+            output.write_text(text + "\n", encoding="utf-8")
+            typer.secho(f"已生成：{output}", fg=typer.colors.GREEN)
+        else:
+            typer.echo(text)
+    except PyAutoBoxError as exc:
+        _fail(exc)
+
+
+@app.command("formats")
+def formats_command() -> None:
+    """列出所有支持的格式转换。"""
+    for category, sources in registry.list_formats().items():
+        typer.secho(f"\n{category}", bold=True)
+        for source, targets in sources.items():
+            typer.echo(f"  {source:<6} → {', '.join(targets)}")
 
 
 @app.command("clean-desktop")

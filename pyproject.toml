@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyautobox"
-version = "0.1.0"
-description = "A lightweight personal automation toolbox with CLI and local Web UI."
+version = "0.2.0"
+description = "A local automation and file conversion toolbox with CLI and Web UI."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [
   { name = "PyAutoBox contributors" },
 ]
-keywords = ["automation", "cli", "fastapi", "pdf", "excel", "image"]
+keywords = ["automation", "conversion", "cli", "fastapi", "pdf", "excel", "image"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
@@ -26,13 +26,17 @@ classifiers = [
   "Topic :: Utilities",
 ]
 dependencies = [
+  "beautifulsoup4>=4.12,<5",
   "fastapi>=0.115,<1",
   "jinja2>=3.1,<4",
+  "markdown>=3.7,<4",
+  "mutagen>=1.47,<2",
   "openpyxl>=3.1,<4",
   "pandas>=2.2,<4",
   "pillow>=10,<13",
   "pypdf>=5,<7",
   "python-multipart>=0.0.12,<1",
+  "pyyaml>=6,<7",
   "reportlab>=4.2,<5",
   "typer>=0.15,<1",
   "uvicorn>=0.34,<1",

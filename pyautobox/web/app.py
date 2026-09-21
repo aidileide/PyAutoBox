@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from pyautobox import __version__
 from pyautobox.exceptions import PyAutoBoxError
-from pyautobox.web.routes import api, pages
+from pyautobox.web.routes import api, conversion, pages
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,21 @@ def create_app() -> FastAPI:
     application.mount("/static", StaticFiles(directory=web_root / "static"), name="static")
     application.include_router(pages.router)
     application.include_router(api.router)
+    application.include_router(conversion.router)
+
+    @application.middleware("http")
+    async def security_headers(request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; style-src 'self'; "
+            "img-src 'self' blob: data:; connect-src 'self'; object-src 'none'; "
+            "base-uri 'self'; frame-ancestors 'none'"
+        )
+        return response
 
     @application.exception_handler(PyAutoBoxError)
     async def pyautobox_error_handler(_request: Request, exc: PyAutoBoxError) -> JSONResponse:
