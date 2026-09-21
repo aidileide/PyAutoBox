@@ -32,7 +32,7 @@ class ImageConverter(Converter):
         target = format_from_path(output_path)
         quality = int(options.get("quality", 85))
         if not 1 <= quality <= 100:
-            raise InvalidFileError("Image quality must be between 1 and 100.")
+            raise InvalidFileError("图片质量必须在 1 到 100 之间。")
         try:
             with Image.open(input_path) as source:
                 source.verify()
@@ -56,7 +56,7 @@ class ImageConverter(Converter):
                 image.save(output_path, format=PIL_FORMATS[target], **save_options)
         except (UnidentifiedImageError, OSError, ValueError, KeyError) as exc:
             source_format = format_from_path(input_path).upper()
-            raise InvalidFileError(f"Invalid {source_format} image.") from exc
+            raise InvalidFileError(f"{input_path.name} 不是有效的 {source_format} 图片。") from exc
         return output_path
 
     @staticmethod
@@ -73,7 +73,7 @@ class ImageConverter(Converter):
         width = int(max_width) if max_width else image.width
         height = int(max_height) if max_height else image.height
         if width <= 0 or height <= 0:
-            raise InvalidFileError("Resize dimensions must be positive integers.")
+            raise InvalidFileError("调整尺寸必须使用正整数。")
         scale = min(width / image.width, height / image.height, 1.0)
         if scale >= 1:
             return image.copy()
@@ -85,7 +85,7 @@ class ImageConverter(Converter):
         try:
             color = ImageColor.getrgb(background)
         except ValueError as exc:
-            raise InvalidFileError(f"Invalid background color: {background}") from exc
+            raise InvalidFileError(f"背景颜色无效：{background}") from exc
         if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
             rgba = image.convert("RGBA")
             canvas = Image.new("RGBA", rgba.size, (*color, 255))

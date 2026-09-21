@@ -17,4 +17,4 @@ def test_cli_version() -> None:
     result = runner.invoke(app, ["version"])
 
     assert result.exit_code == 0
-    assert "PyAutoBox 0.2.0" in result.stdout
+    assert "PyAutoBox 0.2.1" in result.stdout

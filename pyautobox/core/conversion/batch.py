@@ -23,7 +23,7 @@ def batch_convert(
 ) -> list[Path]:
     """Convert matching files under a directory and return output paths."""
     if not input_dir.is_dir():
-        raise InvalidFileError(f"Input directory not found: {input_dir}")
+        raise InvalidFileError(f"找不到输入目录：{input_dir}")
     source = normalize_format(source_format)
     target = normalize_format(target_format)
     converter_registry.get_converter(source, target)

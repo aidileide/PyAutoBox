@@ -30,7 +30,7 @@ def unique_output_path(path: Path, overwrite: bool = False) -> Path:
         candidate = path.with_name(f"{path.stem}_{index}{path.suffix}")
         if not candidate.exists():
             return candidate
-    raise FileConflictError(f"Could not find a free output name near {path}.")
+    raise FileConflictError(f"无法为 {path} 找到可用的输出文件名。")
 
 
 class Converter(ABC):

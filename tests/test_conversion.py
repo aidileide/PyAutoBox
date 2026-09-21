@@ -44,12 +44,21 @@ def test_image_conversion_handles_transparency(tmp_path: Path) -> None:
 
 def test_conversion_pages_and_health_render_in_chinese() -> None:
     client = TestClient(create_app())
-    assert client.get("/api/health").json() == {"success": True, "version": "0.2.0"}
+    assert client.get("/api/health").json() == {"success": True, "version": "0.2.1"}
     home = client.get("/")
     tool = client.get("/tools/convert/image")
     assert "一个工具箱" in home.text
     assert "PDF 合并" in home.text
+    assert 'id="tool-search"' in home.text
+    assert "批量重命名" in home.text
+    assert "文件夹整理" in home.text
     assert "图片格式转换" in tool.text
+
+
+def test_unknown_conversion_tool_uses_pyautobox_404_page() -> None:
+    response = TestClient(create_app()).get("/tools/convert/not-here")
+    assert response.status_code == 404
+    assert "页面不存在 · PyAutoBox" in response.text
 
 
 def test_convert_api_sanitizes_filename_and_returns_jpeg() -> None:

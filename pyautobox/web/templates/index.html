@@ -13,23 +13,36 @@
 <section class="metrics"><div><strong>13</strong><span>项实用工具</span></div><div><strong>14+</strong><span>种常用格式</span></div><div><strong>0 B</strong><span>上传到云端</span></div><div><strong>100%</strong><span>开源可审计</span></div></section>
 {% include "converter.html" %}
 <section class="tools-section" id="tools">
-  <div class="section-heading"><div><p class="eyebrow"><span></span>AUTOMATION</p><h2>自动化工具</h2></div><p>高频任务直接完成，命令行还提供批量重命名与文件夹整理。</p></div>
-  <div class="tool-grid">
-    <a class="tool-card rose" href="/tools/pdf-merge"><span class="tool-index">01</span><span class="tool-icon">PDF</span><h3>PDF 合并</h3><p>按指定顺序合并多个 PDF 文件。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card green" href="/tools/excel-merge"><span class="tool-index">02</span><span class="tool-icon">XLS</span><h3>Excel 合并</h3><p>按行合并工作表并记录数据来源。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card violet" href="/tools/image-compress"><span class="tool-index">03</span><span class="tool-icon">IMG</span><h3>图片压缩</h3><p>批量压缩并限制最大宽度。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card orange" href="/tools/md2pdf"><span class="tool-index">04</span><span class="tool-icon">MD</span><h3>Markdown 转 PDF</h3><p>上传或粘贴 Markdown 生成 PDF。</p><span class="card-link">打开工具 ↗</span></a>
+  <div class="tool-browser" aria-label="筛选工具">
+    <label class="tool-search"><span aria-hidden="true">⌕</span><input id="tool-search" type="search" placeholder="搜索工具或格式，例如 PDF、JSON、图片…" autocomplete="off"><kbd>Ctrl K</kbd></label>
+    <div class="tool-filters" role="group" aria-label="工具分类">
+      <button class="active" type="button" data-tool-filter="all">全部</button>
+      <button type="button" data-tool-filter="automation">自动化</button>
+      <button type="button" data-tool-filter="conversion">格式转换</button>
+      <button type="button" data-tool-filter="cli">命令行</button>
+    </div>
+    <span class="tool-result-count" id="tool-result-count" aria-live="polite">共 13 项工具</span>
   </div>
-  <div class="section-heading secondary-heading"><div><p class="eyebrow"><span></span>CONVERSION</p><h2>格式转换</h2></div><p>单文件或批量处理，转换完成后临时文件自动清理。</p></div>
-  <div class="tool-grid">
-    <a class="tool-card violet" href="/tools/convert/image"><span class="tool-index">05</span><span class="tool-icon">IMG</span><h3>图片格式转换</h3><p>PNG、JPG、WebP、BMP、TIFF 互转。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card green" href="/tools/convert/table"><span class="tool-index">06</span><span class="tool-icon">CSV</span><h3>表格格式转换</h3><p>CSV、XLSX 与 JSON 记录互转。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card blue" href="/tools/convert/json-yaml"><span class="tool-index">07</span><span class="tool-icon">{ }</span><h3>JSON ↔ YAML</h3><p>安全解析，完整保留中文字符。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card orange" href="/tools/convert/markdown"><span class="tool-index">08</span><span class="tool-icon">MD</span><h3>Markdown 转换</h3><p>生成 HTML 页面或纯文本。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card rose" href="/tools/convert/text"><span class="tool-index">09</span><span class="tool-icon">TXT</span><h3>文本内容提取</h3><p>从 HTML 与 Markdown 提取可读文本。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card cyan" href="/tools/convert/audio"><span class="tool-index">10</span><span class="tool-icon">ID3</span><h3>音频信息查看</h3><p>读取标签、时长、码率和采样率。</p><span class="card-link">打开工具 ↗</span></a>
-    <a class="tool-card yellow featured" href="/tools/convert/batch"><span class="tool-index">11</span><span class="tool-icon">ZIP</span><h3>批量文件转换</h3><p>一次转换多个文件并打包下载。</p><span class="card-link">打开工具 ↗</span></a>
+  <div class="section-heading" data-tool-group-heading="automation"><div><p class="eyebrow"><span></span>AUTOMATION</p><h2>自动化工具</h2></div><p>高频任务直接完成，命令行还提供批量重命名与文件夹整理。</p></div>
+  <div class="tool-grid" data-tool-group="automation">
+    <a class="tool-card rose" data-tool-card data-category="automation" href="/tools/pdf-merge"><span class="tool-index">01</span><span class="tool-icon">PDF</span><h3>PDF 合并</h3><p>按指定顺序合并多个 PDF 文件。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card green" data-tool-card data-category="automation" href="/tools/excel-merge"><span class="tool-index">02</span><span class="tool-icon">XLS</span><h3>Excel 合并</h3><p>按行合并工作表并记录数据来源。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card violet" data-tool-card data-category="automation" href="/tools/image-compress"><span class="tool-index">03</span><span class="tool-icon">IMG</span><h3>图片压缩</h3><p>批量压缩并限制最大宽度。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card orange" data-tool-card data-category="automation" href="/tools/md2pdf"><span class="tool-index">04</span><span class="tool-icon">MD</span><h3>Markdown 转 PDF</h3><p>上传或粘贴 Markdown 生成 PDF。</p><span class="card-link">打开工具 ↗</span></a>
+    <article class="tool-card cyan cli-card" data-tool-card data-category="cli"><span class="tool-index">12</span><span class="tool-icon">REN</span><h3>批量重命名</h3><p>先预览冲突，再安全修改整批文件名。</p><button class="copy-command" type="button" data-copy-command="autobox rename ./folder --dry-run">复制命令</button></article>
+    <article class="tool-card blue cli-card" data-tool-card data-category="cli"><span class="tool-index">13</span><span class="tool-icon">DIR</span><h3>文件夹整理</h3><p>按类型整理文件，默认仅预览并支持撤销。</p><button class="copy-command" type="button" data-copy-command="autobox clean-desktop --path ./Downloads">复制命令</button></article>
   </div>
+  <div class="section-heading secondary-heading" data-tool-group-heading="conversion"><div><p class="eyebrow"><span></span>CONVERSION</p><h2>格式转换</h2></div><p>单文件或批量处理，转换完成后临时文件自动清理。</p></div>
+  <div class="tool-grid" data-tool-group="conversion">
+    <a class="tool-card violet" data-tool-card data-category="conversion" href="/tools/convert/image"><span class="tool-index">05</span><span class="tool-icon">IMG</span><h3>图片格式转换</h3><p>PNG、JPG、WebP、BMP、TIFF 互转。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card green" data-tool-card data-category="conversion" href="/tools/convert/table"><span class="tool-index">06</span><span class="tool-icon">CSV</span><h3>表格格式转换</h3><p>CSV、XLSX 与 JSON 记录互转。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card blue" data-tool-card data-category="conversion" href="/tools/convert/json-yaml"><span class="tool-index">07</span><span class="tool-icon">{ }</span><h3>JSON ↔ YAML</h3><p>安全解析，完整保留中文字符。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card orange" data-tool-card data-category="conversion" href="/tools/convert/markdown"><span class="tool-index">08</span><span class="tool-icon">MD</span><h3>Markdown 转换</h3><p>生成 HTML 页面或纯文本。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card rose" data-tool-card data-category="conversion" href="/tools/convert/text"><span class="tool-index">09</span><span class="tool-icon">TXT</span><h3>文本内容提取</h3><p>从 HTML 与 Markdown 提取可读文本。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card cyan" data-tool-card data-category="conversion" href="/tools/convert/audio"><span class="tool-index">10</span><span class="tool-icon">ID3</span><h3>音频信息查看</h3><p>读取标签、时长、码率和采样率。</p><span class="card-link">打开工具 ↗</span></a>
+    <a class="tool-card yellow featured" data-tool-card data-category="conversion" href="/tools/convert/batch"><span class="tool-index">11</span><span class="tool-icon">ZIP</span><h3>批量文件转换</h3><p>一次转换多个文件并打包下载。</p><span class="card-link">打开工具 ↗</span></a>
+  </div>
+  <p class="tool-empty" id="tool-empty" hidden>没有找到匹配工具，试试“图片”“PDF”或“JSON”。</p>
 </section>
 <section class="privacy-banner" id="privacy"><div class="privacy-copy"><p class="eyebrow"><span></span>PRIVACY BY DESIGN</p><h2>文件真的留在本地。</h2><p>浏览器只连接当前 PyAutoBox 服务。处理使用随机临时目录，请求结束后自动清理。</p><ul><li><span>✓</span> 无账号与行为追踪</li><li><span>✓</span> 文件名安全清理</li><li><span>✓</span> 开源代码可检查</li></ul></div><div class="privacy-terminal"><div class="terminal-head"><i></i><i></i><i></i><span>pyautobox.local</span></div><div class="terminal-body"><p><span>$</span> autobox serve</p><p class="terminal-muted">✓ 服务运行于 127.0.0.1</p><p class="terminal-muted">✓ 临时文件自动清理</p><p class="terminal-success">● 本地模式已启用</p></div></div></section>
 {% endblock %}

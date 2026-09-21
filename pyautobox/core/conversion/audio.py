@@ -16,13 +16,13 @@ AUDIO_FORMATS = frozenset({"mp3", "flac", "m4a", "ogg"})
 def read_audio_metadata(path: Path) -> dict[str, Any]:
     """Return normalized tags and technical metadata for an audio file."""
     if format_from_path(path) not in AUDIO_FORMATS:
-        raise UnsupportedFormatError(f"Unsupported audio format: {path.suffix or '(none)'}")
+        raise UnsupportedFormatError(f"不支持的音频格式：{path.suffix or '无扩展名'}")
     try:
         audio = MutagenFile(path, easy=True)
     except (OSError, ValueError) as exc:
-        raise InvalidFileError(f"Invalid {path.suffix.lstrip('.').upper()} audio file.") from exc
+        raise InvalidFileError(f"{path.name} 不是有效的音频文件。") from exc
     if audio is None:
-        raise InvalidFileError(f"Invalid {path.suffix.lstrip('.').upper()} audio file.")
+        raise InvalidFileError(f"{path.name} 不是有效的音频文件。")
     tags = audio.tags or {}
     info = getattr(audio, "info", None)
 

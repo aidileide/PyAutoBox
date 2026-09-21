@@ -41,14 +41,14 @@ class TableConverter(Converter):
             elif target == "json":
                 orient = str(options.get("json_orient", "records"))
                 if orient != "records":
-                    raise InvalidFileError("Only JSON orient 'records' is supported in 0.1.0.")
+                    raise InvalidFileError("表格 JSON 目前只支持 records 数组格式。")
                 frame.to_json(output_path, orient="records", force_ascii=False, indent=2)
             else:
-                raise InvalidFileError(f"Unsupported table target: {target}")
+                raise InvalidFileError(f"不支持的表格输出格式：{target}")
         except (OSError, ValueError, TypeError) as exc:
             if isinstance(exc, InvalidFileError):
                 raise
-            raise InvalidFileError(f"Could not write {target.upper()} table.") from exc
+            raise InvalidFileError(f"无法写入 {target.upper()} 表格。") from exc
         return output_path
 
     def read(self, input_path: Path, sheet: object = None) -> pd.DataFrame:
@@ -61,7 +61,7 @@ class TableConverter(Converter):
                 book = pd.ExcelFile(input_path, engine="openpyxl")
                 selected = str(sheet) if sheet else book.sheet_names[0]
                 if selected not in book.sheet_names:
-                    raise InvalidFileError(f"Worksheet not found: {selected}")
+                    raise InvalidFileError(f"找不到工作表：{selected}")
                 if len(book.sheet_names) > 1 and not sheet:
                     logger.warning(
                         "Workbook has multiple sheets; using %s. Use --sheet to choose another.",
@@ -71,19 +71,19 @@ class TableConverter(Converter):
             if source == "json":
                 data = json.loads(input_path.read_text(encoding="utf-8-sig"))
                 if not isinstance(data, list) or any(not isinstance(row, dict) for row in data):
-                    raise InvalidFileError("Table JSON must be an array of objects.")
+                    raise InvalidFileError("表格 JSON 必须是对象数组。")
                 return pd.DataFrame.from_records(data)
         except UnicodeDecodeError as exc:
-            raise InvalidFileError("CSV must use UTF-8 or UTF-8-SIG encoding.") from exc
+            raise InvalidFileError("CSV 必须使用 UTF-8 或 UTF-8-SIG 编码。") from exc
         except json.JSONDecodeError as exc:
             raise InvalidFileError(
-                f"Invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
+                f"JSON 无效：第 {exc.lineno} 行，第 {exc.colno} 列：{exc.msg}"
             ) from exc
         except (OSError, ValueError, KeyError) as exc:
             if isinstance(exc, InvalidFileError):
                 raise
-            raise InvalidFileError("Invalid spreadsheet.") from exc
-        raise InvalidFileError(f"Unsupported table source: {source}")
+            raise InvalidFileError("电子表格文件无效。") from exc
+        raise InvalidFileError(f"不支持的表格输入格式：{source}")
 
     @staticmethod
     def _read_csv(path: Path) -> pd.DataFrame:
@@ -95,5 +95,5 @@ class TableConverter(Converter):
                 last_error = exc
         if last_error:
             raise last_error
-        raise InvalidFileError("Invalid CSV file.")
+        raise InvalidFileError("CSV 文件无效。")
 

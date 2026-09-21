@@ -43,7 +43,7 @@ class MarkdownConverter(Converter):
         try:
             source = input_path.read_text(encoding="utf-8-sig")
         except (OSError, UnicodeDecodeError) as exc:
-            raise InvalidFileError(f"Could not read {input_path.name} as UTF-8 Markdown.") from exc
+            raise InvalidFileError(f"无法以 UTF-8 Markdown 读取 {input_path.name}。") from exc
         body = markdown.markdown(escape(source), extensions=["extra", "sane_lists"])
         body = self._safe_links(body)
         if options.get("standalone", True):

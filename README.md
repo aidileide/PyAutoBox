@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://www.python.org/"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
-  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-4f46e5"></a>
+  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.1-4f46e5"></a>
   <a href="https://github.com/aidileide/PyAutoBox/actions"><img alt="Tests" src="https://github.com/aidileide/PyAutoBox/actions/workflows/tests.yml/badge.svg"></a>
   <a href="https://pypi.org/project/pyautobox/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pyautobox?label=PyPI"></a>
   <a href="https://github.com/aidileide/PyAutoBox/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/aidileide/PyAutoBox?style=flat"></a>
@@ -192,6 +192,7 @@ Web UI 提供 PDF 合并、Excel 合并、图片压缩、Markdown 转 PDF，以�
 | 变量 | 默认值 | 说明 |
 | --- | ---: | --- |
 | `PYAUTOBOX_MAX_UPLOAD_MB` | `100` | Web 单文件上传上限（MB） |
+| `PYAUTOBOX_MAX_BATCH_FILES` | `100` | Web 单次批处理文件数上限 |
 | `PYAUTOBOX_PORT` | `8000` | `autobox serve` 默认端口 |
 
 ## Python API
