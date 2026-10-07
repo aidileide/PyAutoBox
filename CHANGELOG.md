@@ -1,5 +1,13 @@
 # 更新日志
 
+## 0.3.0
+
+- 新增音乐格式转换器，支持 MP3、FLAC、OGG、M4A、WAV、AAC、WMA 互转至 MP3、FLAC 或 WAV。
+- 新增 KGG、KGM、KGMA、VPR、NCM、KWM 与传统 QMC/MFLAC/MGG 本地解密转换。
+- KGG 与 KGM v5 自动检测本机 `KGMusicV3.db`，只使用客户端已保存的歌曲密钥。
+- 新增中文音乐转换页面、批量转换支持和 CLI 统一入口。
+- 加密格式算法采用 MIT 许可实现，并补充第三方声明。
+
 ## 0.2.1
 
 - 首页新增工具搜索、分类筛选和 `Ctrl+K` 快捷键。

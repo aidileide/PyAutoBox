@@ -20,9 +20,10 @@ def _png_bytes() -> bytes:
 
 def test_registry_exposes_merged_conversion_categories() -> None:
     formats = registry.list_formats()
-    assert {"Images", "Tables", "Structured Data", "Documents"} <= formats.keys()
+    assert {"Images", "Tables", "Structured Data", "Documents", "Music"} <= formats.keys()
     assert registry.supports("png", "webp")
     assert registry.supports("json", "yaml")
+    assert registry.supports("kgg", "mp3")
 
 
 def test_json_yaml_round_trip_preserves_chinese(tmp_path: Path) -> None:
@@ -44,7 +45,7 @@ def test_image_conversion_handles_transparency(tmp_path: Path) -> None:
 
 def test_conversion_pages_and_health_render_in_chinese() -> None:
     client = TestClient(create_app())
-    assert client.get("/api/health").json() == {"success": True, "version": "0.2.1"}
+    assert client.get("/api/health").json() == {"success": True, "version": "0.3.0"}
     home = client.get("/")
     tool = client.get("/tools/convert/image")
     assert "一个工具箱" in home.text
@@ -53,6 +54,9 @@ def test_conversion_pages_and_health_render_in_chinese() -> None:
     assert "批量重命名" in home.text
     assert "文件夹整理" in home.text
     assert "图片格式转换" in tool.text
+    music = client.get("/tools/convert/music")
+    assert "音乐格式转换" in music.text
+    assert "酷狗密钥自动检测" in music.text
 
 
 def test_unknown_conversion_tool_uses_pyautobox_404_page() -> None:

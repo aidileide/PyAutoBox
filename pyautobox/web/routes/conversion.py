@@ -14,6 +14,7 @@ from pyautobox import __version__
 from pyautobox.config import MAX_BATCH_FILES
 from pyautobox.core.conversion.audio import AUDIO_FORMATS, read_audio_metadata
 from pyautobox.core.conversion.base import normalize_format
+from pyautobox.core.conversion.music import MUSIC_SOURCE_FORMATS
 from pyautobox.core.conversion.registry import registry
 from pyautobox.core.conversion.table import TableConverter
 from pyautobox.exceptions import InvalidFileError
@@ -21,9 +22,22 @@ from pyautobox.web.routes.api import _download, _job_directory, _store_upload
 
 router = APIRouter(prefix="/api")
 CONVERT_FORMATS = {
-    ".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff",
-    ".csv", ".xlsx", ".json", ".yaml", ".yml",
-    ".md", ".markdown", ".html", ".htm",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".bmp",
+    ".tiff",
+    ".csv",
+    ".xlsx",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".md",
+    ".markdown",
+    ".html",
+    ".htm",
+    *(f".{item}" for item in MUSIC_SOURCE_FORMATS),
 }
 AUDIO_SUFFIXES = {f".{item}" for item in AUDIO_FORMATS}
 

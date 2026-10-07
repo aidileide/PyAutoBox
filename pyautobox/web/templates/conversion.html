@@ -13,6 +13,13 @@
   </div>
 </section>
 {% include "converter.html" %}
+{% if tool == "music" %}
+<section class="music-help">
+  <div><span class="music-help-icon">♫</span><div><strong>酷狗密钥自动检测</strong><p>KGG 与 KGM v5 会读取本机 KGMusicV3.db；请先在酷狗客户端成功播放目标歌曲。</p></div></div>
+  <div><span class="music-help-icon">⌁</span><div><strong>全程本地处理</strong><p>不会上传音频、账号或密钥；不提供在线取钥与会员权限绕过。</p></div></div>
+  <div><span class="music-help-icon">HQ</span><div><strong>高质量输出</strong><p>支持 MP3、FLAC、WAV；已有通用音频也可直接转码。</p></div></div>
+</section>
+{% endif %}
 {% if tool == "json-yaml" %}
 <section class="editor-card" id="text-editor">
   <div class="editor-head"><div><p class="eyebrow"><span></span>PASTE & CONVERT</p><h2>直接粘贴 JSON 或 YAML</h2></div><span class="encoding-pill">UTF-8</span></div>

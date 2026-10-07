@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://www.python.org/"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
-  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.1-4f46e5"></a>
+  <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.3.0-4f46e5"></a>
   <a href="https://github.com/aidileide/PyAutoBox/actions"><img alt="Tests" src="https://github.com/aidileide/PyAutoBox/actions/workflows/tests.yml/badge.svg"></a>
   <a href="https://pypi.org/project/pyautobox/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pyautobox?label=PyPI"></a>
   <a href="https://github.com/aidileide/PyAutoBox/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/aidileide/PyAutoBox?style=flat"></a>
@@ -30,6 +30,7 @@ CLI 和 Web 不重复实现业务逻辑：两者都调用 `pyautobox/core/` 中�
 - 文件夹整理：只移动、不删除，默认 dry-run，并支持撤销最近一次整理。
 - 万能格式转换：图片、CSV/XLSX/JSON、JSON/YAML、Markdown/HTML/TXT 互转。
 - 音频信息查看：读取 MP3、FLAC、M4A、OGG 的标签与技术参数。
+- 音乐格式转换：常用音频以及 KGG、KGM、NCM、KWM、传统 QMC 等本地加密容器转 MP3、FLAC 或 WAV。
 - 批量转换：多文件 Web 打包下载，CLI 支持目录递归转换。
 - 本地 Web UI：拖拽上传、异步处理、结果下载、响应式布局。
 
@@ -89,11 +90,27 @@ autobox convert photo.png --to webp --quality 82
 autobox convert report.csv --to xlsx
 autobox convert config.json --to yaml
 autobox convert README.md --to html
+autobox convert "千年以后.kgg" --to mp3
 autobox batch-convert ./photos --from png --to jpg --recursive
 autobox audio-info song.mp3 --output metadata.json
 ```
 
 输出文件已存在时自动生成不冲突的文件名；使用 `--force` 才会覆盖。Web 首页也提供同一套转换能力。
+
+### 音乐格式转换
+
+```bash
+autobox convert song.flac --to mp3
+autobox convert downloaded.kgg --to mp3
+autobox batch-convert ./music --from ncm --to mp3 --recursive
+```
+
+普通音频转码需要本机 FFmpeg。KGG 与 KGM v5 还需要酷狗客户端已下载并成功播放目标歌曲；
+PyAutoBox 会自动检测 `%APPDATA%\KuGou8\KGMusicV3.db`，也可通过
+`PYAUTOBOX_KUGOU_DB` 指定数据库。所有解密、转码均在本地完成，不上传音频或密钥。
+
+支持 KGG、KGM、KGMA、VPR、NCM、KWM、传统 QMC/MFLAC/MGG。新版 MusicEx 文件需要在线
+会话密钥，当前本地模式会明确拒绝，不读取账号会话或联网取钥。
 
 打开浏览器访问 <http://127.0.0.1:8000>。
 
@@ -176,7 +193,7 @@ autobox serve --port 8080
 ```
 
 Web UI 提供 PDF 合并、Excel 合并、图片压缩、Markdown 转 PDF，以及图片、表格、结构化
-数据、文档和批量格式转换。批量重命名和文件整理只在 CLI 中开放；Web 不接受服务器路径，
+数据、文档、音乐和批量格式转换。批量重命名和文件整理只在 CLI 中开放；Web 不接受服务器路径，
 也不能浏览任意本地文件系统。
 
 上传安全设计：
@@ -194,6 +211,8 @@ Web UI 提供 PDF 合并、Excel 合并、图片压缩、Markdown 转 PDF，以�
 | `PYAUTOBOX_MAX_UPLOAD_MB` | `100` | Web 单文件上传上限（MB） |
 | `PYAUTOBOX_MAX_BATCH_FILES` | `100` | Web 单次批处理文件数上限 |
 | `PYAUTOBOX_PORT` | `8000` | `autobox serve` 默认端口 |
+| `PYAUTOBOX_FFMPEG` | 自动检测 | FFmpeg 可执行文件路径 |
+| `PYAUTOBOX_KUGOU_DB` | 自动检测 | `KGMusicV3.db` 路径 |
 
 ## Python API
 

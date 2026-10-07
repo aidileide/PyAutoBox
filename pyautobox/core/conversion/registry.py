@@ -56,9 +56,7 @@ class ConverterRegistry:
         for (source, target), converter in self._pairs.items():
             grouped[converter.category][source].add(target)
         return {
-            category: {
-                source: sorted(targets) for source, targets in sorted(sources.items())
-            }
+            category: {source: sorted(targets) for source, targets in sorted(sources.items())}
             for category, sources in sorted(grouped.items())
         }
 
@@ -67,6 +65,7 @@ def create_default_registry() -> ConverterRegistry:
     """Create a registry containing all stable 0.1 converters."""
     from pyautobox.core.conversion.image import ImageConverter
     from pyautobox.core.conversion.markdown import MarkdownConverter
+    from pyautobox.core.conversion.music import MusicConverter
     from pyautobox.core.conversion.structured_data import StructuredDataConverter
     from pyautobox.core.conversion.table import TableConverter
     from pyautobox.core.conversion.text import TextConverter
@@ -78,10 +77,10 @@ def create_default_registry() -> ConverterRegistry:
         StructuredDataConverter(),
         MarkdownConverter(),
         TextConverter(),
+        MusicConverter(),
     ):
         result.register(converter)
     return result
 
 
 registry = create_default_registry()
-
