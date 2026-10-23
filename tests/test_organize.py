@@ -1,6 +1,9 @@
 from pathlib import Path
 
+import pytest
+
 from pyautobox.core.organize_tools import organize_folder, undo_last_organization
+from pyautobox.exceptions import ToolExecutionError
 
 
 def test_organize_dry_run_does_not_move_files(tmp_path: Path) -> None:
@@ -43,3 +46,20 @@ def test_organize_uses_non_conflicting_name(tmp_path: Path) -> None:
 
     assert (images / "photo.jpg").read_bytes() == b"old"
     assert (images / "photo_1.jpg").read_bytes() == b"new"
+
+
+@pytest.mark.parametrize("history_contents", [b"{broken", b"\xff"])
+def test_invalid_history_stops_organization_before_moving_files(
+    tmp_path: Path, history_contents: bytes
+) -> None:
+    image = tmp_path / "photo.jpg"
+    image.write_bytes(b"image")
+    history = tmp_path / ".pyautobox_history.json"
+    history.write_bytes(history_contents)
+
+    with pytest.raises(ToolExecutionError, match="Could not read history"):
+        organize_folder(tmp_path, dry_run=False)
+
+    assert image.read_bytes() == b"image"
+    assert not (tmp_path / "Images").exists()
+    assert history.read_bytes() == history_contents

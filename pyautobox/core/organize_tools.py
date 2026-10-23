@@ -106,7 +106,7 @@ def _read_history(path: Path) -> dict[str, object]:
         return {"version": 1, "runs": []}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ToolExecutionError(f"Could not read history file: {exc}") from exc
     if not isinstance(data, dict) or not isinstance(data.get("runs"), list):
         raise ToolExecutionError("The PyAutoBox history file is invalid.")
@@ -137,6 +137,8 @@ def organize_folder(directory: Path, *, dry_run: bool = True) -> list[MoveOperat
         )
         return operations
 
+    history_path = root / HISTORY_FILE
+    history = _read_history(history_path)
     moved: list[MoveOperation] = []
     try:
         for operation in operations:
@@ -149,8 +151,6 @@ def organize_folder(directory: Path, *, dry_run: bool = True) -> list[MoveOperat
                 shutil.move(str(operation.target), str(operation.source))
         raise ToolExecutionError(f"Organization failed and was rolled back: {exc}") from exc
 
-    history_path = root / HISTORY_FILE
-    history = _read_history(history_path)
     runs = history["runs"]
     assert isinstance(runs, list)
     runs.append(
