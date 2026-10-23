@@ -1,0 +1,30 @@
+name: Bug report / 问题反馈
+description: Report a reproducible failure using synthetic sample data.
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 环境
+      description: Include OS, Python version, project version or commit, and installation method.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      description: Include the exact command and minimal synthetic input. Remove private files and credentials.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 实际结果
+      description: Paste a redacted error message or report.
+    validations:
+      required: true

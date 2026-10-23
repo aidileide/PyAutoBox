@@ -14,6 +14,8 @@
 ```bash
 python -m pytest
 python -m ruff check .
+python -m build
+python -m twine check dist/*
 ```
 
 ## Pull Request

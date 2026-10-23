@@ -4,6 +4,8 @@
 
 <h1 align="center">PyAutoBox</h1>
 
+[English](README.en.md) | 简体中文
+
 <p align="center"><strong>Simple tools. Less repetitive work.</strong></p>
 
 <p align="center">
@@ -11,7 +13,6 @@
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
   <a href="https://github.com/aidileide/PyAutoBox/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.3.0-4f46e5"></a>
   <a href="https://github.com/aidileide/PyAutoBox/actions"><img alt="Tests" src="https://github.com/aidileide/PyAutoBox/actions/workflows/tests.yml/badge.svg"></a>
-  <a href="https://pypi.org/project/pyautobox/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pyautobox?label=PyPI"></a>
   <a href="https://github.com/aidileide/PyAutoBox/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/aidileide/PyAutoBox?style=flat"></a>
 </p>
 
@@ -44,9 +45,14 @@ CLI 和 Web 不重复实现业务逻辑：两者都调用 `pyautobox/core/` 中�
 
 要求 Python 3.11 或更高版本。
 
+从本仓库安装（需要 Git）：
+
 ```bash
-pip install pyautobox
+python -m pip install "git+https://github.com/aidileide/PyAutoBox.git"
 ```
+
+本项目尚未发布到 PyPI；请先使用上面的仓库安装方式。
+安装后运行 `autobox version` 验证版本。
 
 从源码安装开发版本：
 
@@ -235,9 +241,12 @@ merge_pdfs(
 python -m pip install -e ".[dev]"
 python -m pytest
 python -m ruff check .
+python -m build
+python -m twine check dist/*
 ```
 
-GitHub Actions 会在 Python 3.11、3.12、3.13 上执行相同的测试与 Ruff 检查。
+GitHub Actions 在 Windows 与 Linux 的 Python 3.11、3.12、3.13 上执行测试与 Ruff 检查，
+并独立构建源码包和 wheel，在干净环境中验证安装、命令入口及 Web 静态资源。
 
 ## 项目结构
 
@@ -266,7 +275,7 @@ PyAutoBox/
 - 增加更丰富的 Markdown 表格与语法支持。
 - 增加图片输出格式与元数据保留选项。
 - 增加文件整理规则配置文件。
-- 发布 PyPI 正式包与真实 Web UI 截图。
+- 发布 PyPI 正式包。
 
 ## Contributing
 

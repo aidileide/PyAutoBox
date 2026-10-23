@@ -1,0 +1,21 @@
+name: Feature request / 功能建议
+description: Describe a real workflow and the improvement it needs.
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow and problem / 场景与问题
+      description: Who needs this, and which task is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / 希望的行为
+      description: Include an example command or expected output, if useful.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / 已尝试的替代方案

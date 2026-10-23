@@ -10,10 +10,11 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
@@ -34,3 +35,34 @@ jobs:
 
       - name: Run Ruff
         run: python -m ruff check .
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build twine
+      - name: Validate lock file
+        run: python -c "import pathlib, tomllib; tomllib.loads(pathlib.Path('uv.lock').read_text(encoding='utf-8'))"
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - name: Install wheel outside source tree
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel-env"
+          "$RUNNER_TEMP/wheel-env/bin/python" -m pip install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/wheel-env/bin/autobox" version
+          "$RUNNER_TEMP/wheel-env/bin/python" - <<'PY'
+          from importlib.resources import files
+          root = files("pyautobox")
+          for path in ("web/templates/index.html", "web/static/js/app.js", "THIRD_PARTY_NOTICES.md"):
+              assert root.joinpath(path).is_file(), path
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pyautobox-dist
+          path: dist/
+          retention-days: 14
